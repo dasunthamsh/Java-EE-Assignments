@@ -1,4 +1,4 @@
 # Java-EE-Assignments
 Json-with-Ajax
 
-This repository provides examples of combining AJAX (Asynchronous JavaScript and XML) and JSON (JavaScript Object Notation) in a JavaEE application in a simple CRUD operation.
+This repository provides examples of combining AJAX (Asynchronous JavaScript and XML) and JSON (JavaScript Object Notation) in a JavaEE application in a simple CRUD operation. AJAX enables seamless communication between the client and server, allowing dynamic updates to web content without requiring a full page refresh. JSON, on the other hand, serves as a lightweight data-interchange format, making data exchange between the client and server efficient and structured. In this repository, you'll find code samples and tutorials demonstrating how to implement AJAX requests and responses using JavaEE technologies, while effectively utilizing JSON to transmit and handle data. Whether you're a beginner looking to grasp the fundamentals or an experienced developer seeking to enhance your JavaEE skillset, these examples will help you build responsive and interactive web applications.
