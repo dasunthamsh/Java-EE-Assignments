@@ -36,10 +36,12 @@
     </form>
 
 
-    <button type="submit" class="btn btn-primary">Save</button>
-    <button type="submit" class="btn btn-primary">Update</button>
-    <button type="submit" class="btn btn-primary">Search</button>
-    <button type="submit" class="btn btn-primary">Delete</button>
+    <button type="button" class="btn btn-primary" id="btnSave">Save</button>
+    <button type="button" class="btn btn-primary" id="btnUpdate">Update</button>
+    <button type="button" class="btn btn-primary" id="btnSearch">Search</button>
+    <button type="button" class="btn btn-primary" id="btnDelete">Delete</button>
+    <button type="button" class="btn btn-primary" id="btnGetAll">GetAll</button>
+
 
     <hr>
 
@@ -51,10 +53,9 @@
             <th>Name</th>
             <th>Address</th>
             <th>Salary</th>
-            <th>Actions</th>
         </tr>
         </thead>
-        <tbody id="customerTableBody">
+        <tbody id="tblCustomer">
         <!-- Customer data rows will be inserted here -->
         </tbody>
     </table>
@@ -64,8 +65,51 @@
 <script src="assets/js/jquery-3.6.1.min.js"></script>
 <script>
 
-    $("#customerId").click(function (){
+    $("#btnSave").click(function (){
 
+
+        let fromData = $("#customerForm").serialize();
+
+        $.ajax({
+            url:"index",
+            message:"post",
+            data:fromData,
+            data_type:"json",
+            success:function (res){
+                alert(res.responseText);
+            },
+            error:function (error){
+                alert(JSON.parse(error.responseText).message);
+            }
+
+
+
+        });
+    });
+
+    $("#btnGetAll").click(function (){
+        $("#tblCustomer").empty();
+
+        $.ajax({
+
+            url:"index",
+            success:function (res){
+
+                for (var c of res.data) {
+
+                    console.log(res);
+
+                    var id = c.id;
+                    var name = c.name;
+                    var address = c.address;
+                    var salary = c.salary;
+
+                    var row = "<tr><td>"+id+"</td><td>"+name+"</td><td>"+address+"</td><td>"+salary+"</td></tr>";
+                    $("#tblCustomer").append(row);
+
+                }
+            }
+        });
     });
 
 </script>
