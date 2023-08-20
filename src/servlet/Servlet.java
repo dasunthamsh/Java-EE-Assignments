@@ -10,9 +10,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.rmi.RemoteException;
 import java.sql.*;
 
-@WebServlet(urlPatterns = "/index")
+@WebServlet(urlPatterns = "/customer")
 public class Servlet extends HttpServlet {
 
     @Override
@@ -70,8 +71,47 @@ public class Servlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
+        String cusId = req.getParameter ("id");
+        String cusName = req.getParameter ("name");
+        String cusAddress = req.getParameter ("address");
+        String salary = req.getParameter ("salary");
+
+        PrintWriter writer = resp.getWriter ();
+
+
+        try {
+            Class.forName ("com.mysql.cj.jdbc.Driver");
+            Connection connection = DriverManager.getConnection ("jdbc:mysql://localhost:3306/shop", "root", "1234");
+            PreparedStatement pstm = connection.prepareStatement ("insert into customer values(?,?,?,?)");
+
+            pstm.setObject (1, cusId);
+            pstm.setObject (2, cusName);
+            pstm.setObject (3, cusAddress);
+            pstm.setObject (4, salary);
+            if (pstm.executeUpdate () > 0) {
+
+                resp.addHeader("Content-Type","application/json");
+                JsonObjectBuilder cussAdd=Json.createObjectBuilder ();
+                cussAdd.add ("state","200");
+                cussAdd.add ("massage"," Customer Added Succuss");
+                cussAdd.add ("data","");
+                resp.setStatus (200);
+                writer.print(cussAdd.build());
+
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+
+            resp.addHeader("Content-Type","application/json");
+            JsonObjectBuilder obj=Json.createObjectBuilder ();
+            obj.add ("state","");
+            obj.add ("massage",e.getMessage ());
+            obj.add ("data","");
+            resp.setStatus (400);
+            writer.print(obj.build());
+        }
 
     }
+
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -112,6 +152,46 @@ public class Servlet extends HttpServlet {
             addCustomer.add("data", "");
             resp.setStatus(500);
 
+        }
+    }
+
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        resp.setContentType("application/json");
+        String id = req.getParameter("id");
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/shop","root","1234");
+            PreparedStatement pstm = connection.prepareStatement("DELETE FROM customer WHERE id = ?");
+            pstm.setObject(1, id);
+            boolean b = pstm.executeUpdate() > 0;
+
+            if(b){
+                JsonObjectBuilder deleteCustomer = Json.createObjectBuilder();
+                deleteCustomer.add("state","ok");
+                deleteCustomer.add("message","customer delete successful");
+                deleteCustomer.add("data","");
+            } else {
+                throw new RemoteException("something wrong try agne");
+            }
+
+        }catch (RuntimeException e){
+            JsonObjectBuilder deleteCustomer = Json.createObjectBuilder();
+            deleteCustomer.add("state","ok");
+            deleteCustomer.add("message","customer delete successful");
+            deleteCustomer.add("data","");
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().print(deleteCustomer.build());
+
+        }catch (ClassNotFoundException | SQLException e){
+            JsonObjectBuilder deleteCustomer = Json.createObjectBuilder();
+            deleteCustomer.add("state","ok");
+            deleteCustomer.add("message","customer delete successful");
+            deleteCustomer.add("data","");
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().print(deleteCustomer.build());
         }
     }
 }
