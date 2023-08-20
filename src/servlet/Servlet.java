@@ -2,9 +2,7 @@ package servlet;/*
     @author Dasun
 */
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
+import javax.json.*;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -73,58 +71,47 @@ public class Servlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 
-        String id = req.getParameter("id");
-        String name = req.getParameter("name");
-        String address = req.getParameter("address");
-        String salary = req.getParameter("salary");
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        JsonReader reader = Json.createReader(req.getReader());
+        JsonObject customer = reader.readObject();
+        String id = customer.getString("id");
+        String name = customer.getString("name");
+        String address = customer.getString("address");
+        String salary = customer.getString("salary");
 
         try {
 
             Class.forName("com.mysql.jdbc.Driver");
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/shop","root","1234");
 
-            PreparedStatement pstm = connection.prepareStatement("INSERT INTO customer VALUES (?,?,?,?)");
-            pstm.setObject(1, id);
-            pstm.setObject(2, name);
-            pstm.setObject(3, address);
-            pstm.setObject(4, salary);
+            PreparedStatement pstm = connection.prepareStatement("UPDATE customer SET name=?,address=?,salary=? WHERE id =? ");
+            pstm.setObject(4, id);
+            pstm.setObject(1, name);
+            pstm.setObject(2, address);
+            pstm.setObject(3, salary);
+            boolean b = pstm.executeUpdate() > 0;
 
-            boolean b = pstm.executeUpdate()>0;
+            if(b){
+                JsonObjectBuilder addCustomer = Json.createObjectBuilder(); // customer updated message
+                addCustomer.add("state","ok");
+                addCustomer.add("message","update successful");
+                addCustomer.add("data","");
 
-            if (b){
-
-
-                resp.addHeader("Content-Type","application/json");
-                JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
-                objectBuilder.add("state","ok");
-                objectBuilder.add("message","successfully save");
-                objectBuilder.add("data","");
-                resp.getWriter().print(objectBuilder.build());
-
+                resp.getWriter().print(addCustomer.build());
 
             }
 
-
-        }catch (SQLException e){
-
-            JsonObjectBuilder error = Json.createObjectBuilder();
-            error.add("state","error");
-            error.add("message",e.getLocalizedMessage());
-            error.add("data","");
-
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-
-            resp.getWriter().print(error.build());
-
-
-        }catch (ClassNotFoundException e){
-
-            JsonObjectBuilder error = Json.createObjectBuilder();
-            error.add("state","error");
-            error.add("message",e.getLocalizedMessage());
-            error.add("data","");
-            resp.getWriter().print(error.build());
+        }catch (ClassNotFoundException | RuntimeException | SQLException e) {
+            JsonObjectBuilder addCustomer = Json.createObjectBuilder(); // customer updated message
+            addCustomer.add("state", "ok");
+            addCustomer.add("message", e.getLocalizedMessage());
+            addCustomer.add("data", "");
             resp.setStatus(500);
+
         }
     }
 }

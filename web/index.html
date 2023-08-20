@@ -68,24 +68,44 @@
     $("#btnSave").click(function (){
 
 
-        let fromData = $("#customerForm").serialize();
+
+
+    });
+
+
+    $("#btnUpdate").click(function (){
+
+        let id =  $("#customerId").val();
+        let name =  $("#customerName").val();
+        let address =  $("#customerAddress").val();
+        let salary =  $("#customerSalary").val();
+
+        var customerDetails = {
+
+            "id":id,
+            "name":name,
+            "address":address,
+            "salary":salary
+        }
 
         $.ajax({
+
             url:"index",
-            message:"post",
-            data:fromData,
-            data_type:"json",
-            success:function (res){
-                alert(res.responseText);
+            method:"put",
+            data: JSON.stringify(customerDetails),
+            contentType:"application/json",
+            datatype: "json",
+
+            success:function (reqe){
+                alert(reqe.message);
             },
             error:function (error){
                 alert(JSON.parse(error.responseText).message);
             }
-
-
-
         });
     });
+
+
 
     $("#btnGetAll").click(function (){
         $("#tblCustomer").empty();
